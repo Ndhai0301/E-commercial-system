@@ -1,0 +1,17 @@
+package model;
+
+public class Admin extends User {
+    public Admin(String userId, String userName, String userPassword, String userRegisterTime, String userRole) {
+        super(userId, userName, userPassword, userRegisterTime, userRole);
+    }
+    public Admin(){
+        super();
+    }
+    public String toString() {
+        return String.format("{\"user_id\":\"%s\", \"user_name\":\"%s\", " +
+                             "\"user_password\":\"%s\", \"user_register_time\":\"%s\", " +
+                             "\"user_role\":\"%s\"}",
+                             getUserId(), getUserName(), getUserPassword(),
+                             getUserRegisterTime(), getUserRole());
+    }
+}
