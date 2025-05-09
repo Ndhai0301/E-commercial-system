@@ -1,6 +1,4 @@
 package model;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class User {
     private String userId;
@@ -22,13 +20,10 @@ public class User {
         this.userId = "u_0000000000";
         this.userName = "Default User";
         this.userPassword = "password";
-        this.userRegisterTime = getCurrentTime();
+        this.userRegisterTime = "01-01-2000_00:00:00";
         this.userRole = "customer";
     }
-    public String gerCurrentTime(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy_HH:mm:ss");
-        return LocalDateTime.now().format(formatter);
-    }
+    
     public String getUserId() {
         return userId;
     }

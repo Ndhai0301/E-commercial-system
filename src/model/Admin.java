@@ -8,10 +8,6 @@ public class Admin extends User {
         super();
     }
     public String toString() {
-        return String.format("{\"user_id\":\"%s\", \"user_name\":\"%s\", " +
-                             "\"user_password\":\"%s\", \"user_register_time\":\"%s\", " +
-                             "\"user_role\":\"%s\"}",
-                             getUserId(), getUserName(), getUserPassword(),
-                             getUserRegisterTime(), getUserRole());
+        return super.toString();
     }
 }
