@@ -11,8 +11,8 @@ public class Customer extends User {
     }
     public Customer(){
         super();
-        this.userEmail = "default@example.com";
-        this.userMobile = "0000000000";
+        this.userEmail = "";
+        this.userMobile = "";
     }
     public String getUserEmail() {
         return userEmail;

@@ -33,25 +33,30 @@ public class CustomerOperation {
     }
 
     public boolean registerCustomer(String userName, String userPassword, String userEmail, String userMobile){
-        UserOperation up = UserOperation.getInstance();
+        UserOperation uo= UserOperation.getInstance();
         //Check username
-        if (!up.validateUsername(userName) || !up.validatePassword(userPassword)
+        if (!uo.validateUsername(userName) || !uo.validatePassword(userPassword)
                 || !validateEmail(userEmail) || !validateMoblie(userMobile)
-                || up.checkUsernameExist(userName)) {
+                || uo.checkUsernameExist(userName)) {
+            System.out.println("Error");
             return false;
         }
 
-        String userId = up.generateUniqueUserId();
-        String registerTime = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());
-        String encryptedPassword = up.encryptPassword(userPassword);
+        String userId = uo.generateUniqueUserId();
+        String registerTime = new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date());
+        String encryptedPassword = uo.encryptPassword(userPassword);
+        // String decryptedPassword = uo.decryptPassword(encryptedPassword);
 
-        Customer customer = new Customer(userId, userName, userPassword, registerTime, "Customer", userEmail, userMobile);
-        boolean writeCustomerToFile = importData(customer);
-        if (writeCustomerToFile){
-            up.registerUser(userName, userPassword, customer);
+        Customer customer = new Customer(userId, userName, encryptedPassword, registerTime, "Customer", userEmail, userMobile);
+        // boolean writeCustomerToFile = importData(customer);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(userDataFile, true))) {
+            writer.write(customer.toString());
+            writer.newLine();
             return true;
+        } catch (IOException e) {
+            System.err.println("Failed to save customer: " + e.getMessage());
+            return false;
         }
-        return false;
 
     }
 
