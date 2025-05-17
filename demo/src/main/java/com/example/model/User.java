@@ -11,16 +11,17 @@ public class User {
         if ( !userId.matches("u_\\d{10}")){
             throw new IllegalArgumentException("Invalid userId format. Expected: u_1234567890");
         }
+        this.userId = userId;
         this.userName = userName;
         this.userPassword = userPassword;
         this.userRegisterTime = userRegisterTime;
         this.userRole = userRole;
     }
     public User(){
-        this.userId = "u_0000000000";
-        this.userName = "Default User";
-        this.userPassword = "password";
-        this.userRegisterTime = "01-01-2000_00:00:00";
+        this.userId = "";
+        this.userName = "";
+        this.userPassword = "";
+        this.userRegisterTime = "";
         this.userRole = "customer";
     }
     

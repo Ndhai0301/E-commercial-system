@@ -1,6 +1,9 @@
 package com.example;
+import java.util.List;
+
 import com.example.model.Customer;
 import com.example.operation.CustomerOperation;
+import com.example.operation.CustomerOperation.CustomerListResult;
 import com.example.operation.UserOperation;
 
 public class Main {
@@ -54,12 +57,27 @@ public class Main {
         customerOp.registerCustomer(userName, userPassword, email, mobile);
         System.out.println("Username exists: " + userOp.checkUsernameExist(userName));
 
-        Customer customer = customerOp.getCustomerById("u_0000000002");
-        if (customer != null) {
-            boolean updateEmailSuccess = customerOp.updateProfile("user_email", "john.new@example.com", customer);
-            System.out.println("Update email status: " + (updateEmailSuccess ? "Success" : "Failed"));
+        int pageToFetch = 1;
+        CustomerListResult result = customerOp.getCustomerList(pageToFetch);
+        System.out.println(" Trang hiện tại: " + result.getCurrentPage());
+        System.out.println(" Tổng số trang: " + result.getTotalPages());
+
+        List<Customer> customers = result.getCustomers();
+        if (customers.isEmpty()) {
+            System.out.println(" Không có khách hàng nào trong trang này.");
         } else {
-        System.out.println("Customer not found.");
+            System.out.println(" Danh sách khách hàng:");
+            for (Customer customer : customers) {
+                System.out.println(" ID: " + customer.getUserId());
+                System.out.println("    Tên: " + customer.getUserName());
+                System.out.println("    Email: " + customer.getUserEmail());
+                System.out.println("    SĐT: " + customer.getUserMobile());
+                System.out.println("--------------");
+            }
         }
+        customerOp.deleteAllCustomers();
     }
 }
+
+
+

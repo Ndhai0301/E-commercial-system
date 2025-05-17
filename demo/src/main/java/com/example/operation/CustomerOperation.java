@@ -74,12 +74,12 @@ public class CustomerOperation {
 
     public boolean updateProfile(String attributeName, String value, Customer customerObject) {
         if (attributeName == null || value == null || customerObject == null) return false;
-
+    
         try {
             List<String> lines = Files.readAllLines(Paths.get(USER_FILE));
             List<String> updatedLines = new ArrayList<>();
             boolean updated = false;
-
+    
             for (String line : lines) {
                 JSONObject user = new JSONObject(line);
                 if (user.getString("user_id").equals(customerObject.getUserId())) {
@@ -87,40 +87,44 @@ public class CustomerOperation {
                         case "user_name":
                             if (!userOp.validateUsername(value) || userOp.checkUsernameExist(value)) return false;
                             customerObject.setUserName(value);
+                            user.put("user_name", value);
                             break;
                         case "user_email":
                             if (!validateEmail(value)) return false;
                             customerObject.setUserEmail(value);
+                            user.put("user_email", value);
                             break;
                         case "user_mobile":
                             if (!validateMobile(value)) return false;
                             customerObject.setUserMobile(value);
+                            user.put("user_mobile", value);
                             break;
                         case "user_password":
                             if (!userOp.validatePassword(value)) return false;
-                            value = userOp.encryptPassword(value);
-                            customerObject.setUserPassword(value);
+                            String encryptedPassword = userOp.encryptPassword(value);
+                            customerObject.setUserPassword(encryptedPassword);
+                            user.put("user_password", encryptedPassword);
                             break;
                         default:
                             return false;
                     }
-                    user.put(attributeName, value);
                     updated = true;
                 }
+    
                 updatedLines.add(user.toString());
             }
-
+    
             if (updated) {
                 Files.write(Paths.get(USER_FILE), updatedLines);
             }
+    
             return updated;
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
     }
-
-
+    
     public boolean deleteCustomer(String customerId) {
         try {
             List<String> lines = Files.readAllLines(Paths.get(USER_FILE));
