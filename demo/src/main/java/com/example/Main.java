@@ -1,9 +1,11 @@
 package com.example;
-import com.example.model.User;
+import com.example.model.Customer;
+import com.example.operation.CustomerOperation;
 import com.example.operation.UserOperation;
 
 public class Main {
     public static void main(String[] args) {
+        /** test UserOperation
         UserOperation op = UserOperation.getInstance();
         String newUserId = op.generateUniqueUserId();
         System.out.println("Generated User ID: " + newUserId);
@@ -37,6 +39,27 @@ public class Main {
             System.out.println("Login success. User: " + user.getUserName() + ", Role: " + user.getUserRole());
         } else {
             System.out.println("Login failed for username: " + loginUsername);
+        }
+        /* */
+        // Test CustomerOperation
+        CustomerOperation customerOp = CustomerOperation.getInstance();
+        UserOperation userOp = UserOperation.getInstance();
+        String email = "duchai301@example.com";
+        System.out.println("Valid email:" + customerOp.validateEmail(email));
+        String mobile = "0904784715";
+        System.out.println("Valid mobile: " + customerOp.validateMobile(mobile));
+        String userName = "duc_hai";
+        String userPassword = "duc123";
+
+        customerOp.registerCustomer(userName, userPassword, email, mobile);
+        System.out.println("Username exists: " + userOp.checkUsernameExist(userName));
+
+        Customer customer = customerOp.getCustomerById("u_0000000002");
+        if (customer != null) {
+            boolean updateEmailSuccess = customerOp.updateProfile("user_email", "john.new@example.com", customer);
+            System.out.println("Update email status: " + (updateEmailSuccess ? "Success" : "Failed"));
+        } else {
+        System.out.println("Customer not found.");
         }
     }
 }
