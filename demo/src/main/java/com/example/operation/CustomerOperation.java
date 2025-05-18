@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import org.json.JSONObject;
 
 import com.example.model.Customer;
-import com.example.operation.CustomerOperation.CustomerListResult;
 
 public class CustomerOperation {
     public static CustomerOperation instance;
@@ -128,9 +127,7 @@ public class CustomerOperation {
     public boolean deleteCustomer(String customerId) {
         try {
             List<String> lines = Files.readAllLines(Paths.get(USER_FILE));
-            List<String> updatedLines = lines.stream()
-                    .filter(line -> !new JSONObject(line).getString("user_id").equals(customerId))
-                    .collect(Collectors.toList());
+            List<String> updatedLines = lines.stream().filter(line -> !new JSONObject(line).getString("user_id").equals(customerId)).collect(Collectors.toList());
 
             boolean deleted = lines.size() != updatedLines.size();
             if (deleted) {
@@ -138,11 +135,10 @@ public class CustomerOperation {
             }
             return deleted;
         } catch (IOException e) {
-            e.printStackTrace();
             return false;
         }
     }
-    // Helper class for pagination
+
     public CustomerListResult getCustomerList(int pageNumber) {
         List<Customer> customers = new ArrayList<>();
         try {

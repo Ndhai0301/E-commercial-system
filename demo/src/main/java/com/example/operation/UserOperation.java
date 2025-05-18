@@ -136,7 +136,7 @@ public class UserOperation {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error reading user file: " + e.getMessage());
+
         }
         return users;
     }
