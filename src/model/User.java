@@ -8,9 +8,10 @@ public class User {
     private String userRole;
 
     public User(String userId, String userName, String userPassword, String userRegisterTime, String userRole ){
-        if ( !userId.matches("u_\\d{10}")){
-            throw new IllegalArgumentException("Invalid userId format. Expected: u_1234567890");
-        }
+        // if ( !userId.matches("u_\\d{10}")){
+        //     throw new IllegalArgumentException("Invalid userId format. Expected: u_1234567890");
+        // }
+        this.userId = userId;
         this.userName = userName;
         this.userPassword = userPassword;
         this.userRegisterTime = userRegisterTime;
@@ -57,11 +58,11 @@ public class User {
     }
     @Override
     public String toString() {
-        return  "{"+ "userId='" + userId + '\'' +
-                ", userName='" + userName + '\'' +
-                ", userPassword='" + userPassword + '\'' +
-                ", userRegisterTime='" + userRegisterTime + '\'' +
-                ", userRole='" + userRole + '\'' +
+        return  "{"+ "\"user_id\":\"" + userId + '\"' +
+                ",\"user_name\":\"" + userName + '\"' +
+                ",\"user_password\":\"" + userPassword + '\"' +
+                ",\"user_register_Time\":\"" + userRegisterTime + '\"' +
+                ",\"user_role\":\"" + userRole + '\"' +
                 '}';
     }
 

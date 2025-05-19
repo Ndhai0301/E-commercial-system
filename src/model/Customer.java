@@ -33,8 +33,8 @@ public class Customer extends User {
     @Override
     public String toString() {
         return super.toString().replace("}", "") +  
-            ", userEmail='" + userEmail + '\'' +
-            ", userMobile='" + userMobile + '\'' +
+            ",\"user_email\":\"" + userEmail + '\"' +
+            ",\"user_mobile\":\"" + userMobile + '\"' +
             '}';
     }
 }

@@ -8,12 +8,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.*;
 
+import data.databaseWork;
+
 public class CustomerOperation {
 
     private static final String userDataFile = "data/users.txt";
     private static CustomerOperation instance;
     private static final int PAGE_SIZE = 10;
-
 
     private CustomerOperation(){}
 
@@ -28,7 +29,7 @@ public class CustomerOperation {
         return userMail.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     }
 
-    public boolean validateMoblie(String userMobile){
+    public boolean validateMobile(String userMobile){
         return userMobile.matches("^(03|04)\\d{8}$");
     }
 
@@ -36,120 +37,220 @@ public class CustomerOperation {
         UserOperation uo= UserOperation.getInstance();
         //Check username
         if (!uo.validateUsername(userName) || !uo.validatePassword(userPassword)
-                || !validateEmail(userEmail) || !validateMoblie(userMobile)
+                || !validateEmail(userEmail) || !validateMobile(userMobile)
                 || uo.checkUsernameExist(userName)) {
             System.out.println("Error");
             return false;
         }
-
-        String userId = uo.generateUniqueUserId();
         String registerTime = new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date());
         String encryptedPassword = uo.encryptPassword(userPassword);
         // String decryptedPassword = uo.decryptPassword(encryptedPassword);
-
-        Customer customer = new Customer(userId, userName, encryptedPassword, registerTime, "Customer", userEmail, userMobile);
-        // boolean writeCustomerToFile = importData(customer);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(userDataFile, true))) {
-            writer.write(customer.toString());
-            writer.newLine();
-            return true;
-        } catch (IOException e) {
-            System.err.println("Failed to save customer: " + e.getMessage());
-            return false;
-        }
-
+        
+        Customer customer = new Customer(uo.generateUniqueUserId(),userName, encryptedPassword, registerTime, "Customer", userEmail, userMobile);
+        
+        return databaseWork.addOneLine(customer.toString(), userDataFile);
     }
 
-    private boolean importData(Customer customer){
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(userDataFile, true))) {
-            writer.write(customer.toString());
-            writer.newLine();
-            return true;
-        } catch (IOException e) {
-            return false;
-        }
-    }
+    public boolean updateProfile(String attributeName, String value, Customer customerObject) {
+        UserOperation userOp = UserOperation.getInstance();
 
-    public boolean updateProfile(String attributeName,String value,Customer customerObject){
-        switch (attributeName.toLowerCase()){
-            case "userEmail":
-                if (validateMoblie(value)){
-                    customerObject.setUserEmail(value);
+        switch (attributeName.toLowerCase()) {
+            case "user_name":
+                if (!userOp.validateUsername(value)) {
+                    System.out.println("Tên không hợp lệ.");
+                    return false;
                 }
+                customerObject.setUserName(value);
                 break;
-            case "userMobile":
-                if (validateMoblie(value)) {
-                    customerObject.setUserMobile(value);
+
+            case "user_email":
+                if (!validateEmail(value)) {
+                    System.out.println("Email không hợp lệ.");
+                    return false;
                 }
+                customerObject.setUserEmail(value);
                 break;
-            default: //If attributeName does not match with userEmail and userMobile
+
+            case "user_mobile":
+                if (!validateMobile(value)) {
+                    System.out.println("Số điện thoại không hợp lệ.");
+                    return false;
+                }
+                customerObject.setUserMobile(value);
+                break;
+
+            case "user_password":
+                if (!userOp.validatePassword(value)) {
+                    System.out.println("Mật khẩu không hợp lệ.");
+                    return false;
+                }
+                String encryptedPassword = userOp.encryptPassword(value);
+                customerObject.setUserPassword(encryptedPassword);
+                break;
+
+            default:
+                System.out.println("Không thể cập nhật trường: " + attributeName);
                 return false;
         }
-        return false;
-    }
 
-    public boolean deleteCustomer(String customerId){
-        try {
-            File inputFile = new File(userDataFile);
-            File tempFile = new File("data/temp_users.txt");
+        // Ghi lại toàn bộ dữ liệu vào file users.txt
+        File inputFile = new File("data/users.txt");
+        List<String> updatedLines = new ArrayList<>();
+        boolean updated = false;
 
-            BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
             String line;
-            boolean deleted = false;
-
-            while ((line=reader.readLine()) != null){
-                if (line.startsWith(customerId+",")){
-                    deleted = true;
-                } else{
-                    writer.write(line);
-                    writer.newLine();
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("\"user_id\":\"" + customerObject.getUserId() + "\"") &&
+                    line.contains("\"user_role\":\"customer\"")) {
+                    updatedLines.add(customerObject.toString());
+                    updated = true;
+                } else {
+                    updatedLines.add(line);
                 }
             }
-            if (!inputFile.delete() || !tempFile.renameTo(inputFile)) return false;
-
-            writer.close();
-            reader.close();
-
-            return deleted;
         } catch (IOException e) {
+            e.printStackTrace();
             return false;
         }
+
+        if (!updated) return false;
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(inputFile, false))) {
+            for (String l : updatedLines) {
+                writer.write(l);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean deleteCustomer(String customerId) {
+        File inputFile = new File("data/users.txt");
+
+        List<String> remainingLines = new ArrayList<>();
+        boolean deleted = false;
+
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("\"user_id\":\"" + customerId + "\"") &&
+                    line.contains("\"user_role\":\"customer\"")) {
+                    deleted = true; 
+                    continue;
+                }
+                remainingLines.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (!deleted) {
+            return false;
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(inputFile, false))) {
+            for (String i : remainingLines) {
+                writer.write(i);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
     public CustomerListResult getCustomerList(int pageNumber) {
         List<Customer> allCustomers = new ArrayList<>();
+        int customersPerPage = 10;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(userDataFile))) {
+        File inputFile = new File("data/users.txt");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
             String line;
-            //***********************IT'S SO HARD TO UNDERSTAND****************
             while ((line = reader.readLine()) != null) {
-                Customer customer = new Customer();
-                if (customer.toString() != null) allCustomers.add(customer);
+                if (line.contains("\"user_role\":\"customer\"")) {
+                    // Tách thông tin từ dòng JSON-like
+                    Customer customer = parseCustomerFromLine(line);
+                    if (customer != null) {
+                        allCustomers.add(customer);
+                    }
+                }
             }
-            //*****************************************************************
-        } catch (IOException e) {
-            return new CustomerListResult(Collections.emptyList(), 0, 0);
-        }
-
-        int totalPages = (int) Math.ceil((double) allCustomers.size() / PAGE_SIZE);
-        if (pageNumber > totalPages || pageNumber < 1) {
-            return new CustomerListResult(Collections.emptyList(), pageNumber, totalPages);
-        }
-
-        int startIndex = (pageNumber - 1) * PAGE_SIZE;
-        int endIndex = Math.min(startIndex + PAGE_SIZE, allCustomers.size());
-        List<Customer> pageCustomers = allCustomers.subList(startIndex, endIndex);
-
-        return new CustomerListResult(pageCustomers, pageNumber, totalPages);
-    }
-
-    public void deleteAllCustomers() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter(userDataFile))) {
-            // Just overwrite with nothing
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        int totalCustomers = allCustomers.size();
+        int totalPages = (int) Math.ceil(totalCustomers / 10.0);
+
+        // Điều chỉnh pageNumber nếu vượt giới hạn
+        if (pageNumber < 1) pageNumber = 1;
+        if (pageNumber > totalPages) pageNumber = totalPages;
+
+        int startIndex = (pageNumber - 1) * customersPerPage;
+        int endIndex = Math.min(startIndex + customersPerPage, totalCustomers);
+
+        List<Customer> customersOnPage = new ArrayList<>();
+        if (startIndex < totalCustomers) {
+            customersOnPage = allCustomers.subList(startIndex, endIndex);
+        }
+
+        return new CustomerListResult(customersOnPage, pageNumber, totalPages);
     }
+    
+    private Customer parseCustomerFromLine(String line) {
+
+        try {
+            String userId = databaseWork.extractField(line, "user_id");
+            String userName = databaseWork.extractField(line, "user_name");
+            String userPassword = databaseWork.extractField(line, "user_password");
+            String userRegisterTime = databaseWork.extractField(line, "user_register_time");
+            String userRole = databaseWork.extractField(line, "user_role");
+            String userEmail = databaseWork.extractField(line, "user_email");
+            String userMobile = databaseWork.extractField(line, "user_mobile");
+
+            return new Customer(userId, userName, userPassword, userRegisterTime,
+                                userRole, userEmail, userMobile);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void deleteAllCustomers() {
+        File inputFile = new File(userDataFile);
+        List<String> remainingLines = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Chỉ giữ lại những dòng KHÔNG phải là customer
+                if (!line.contains("\"user_role\":\"customer\"")) {
+                    remainingLines.add(line);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Lỗi khi đọc file: " + e.getMessage());
+            return;
+        }
+
+        // Ghi đè file chỉ với admin còn lại
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(inputFile, false))) {
+            for (String line : remainingLines) {
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Lỗi khi ghi file: " + e.getMessage());
+        }
+    }
+
 }

@@ -1,3 +1,2 @@
 {"user_id":"u_0000000001","user_name":"admin","user_password":"^^qwXzRtYuI7PaSd$$","user_register_time":"01-01-2024_09:00:00","user_role":"admin"} 
-{"user_id":"u_0000000002","user_name":"jPHAT","user_password":"^^aB3cD4eF5gH6i$$","user_register_time":"15-01-2024_14:30:45","user_role":"customer","user_email":"john.doe@example.com","user_mobile":"0412345678"}
-{"user_id":"u_0000000002","user_name":"john_doe","user_password":"^^u4TqReD5sKOt2j1rB2g33$$","user_register_time":"15-01-2024_14:30:45","user_role":"customer","user_email":"john.doe@example.com","user_mobile":"0412345678"}
+{"user_id":"u_0000000001","user_name":"admin","user_password":"^^qwXzRtYuI7PaSd$$","us er_register_time":"01-01-2024_09:00:00","user_role":"admin"} 

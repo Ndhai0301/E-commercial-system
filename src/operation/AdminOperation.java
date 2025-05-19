@@ -1,14 +1,19 @@
 package operation;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import model.Admin;
 
 public class AdminOperation {
+    private static final String userDataFile = "data/users.txt";
     private static AdminOperation instance;
-    private Admin adminAccount;
+    
 
     private AdminOperation(){}
 
@@ -20,26 +25,39 @@ public class AdminOperation {
     }
 
     public void registerAdmin() {
+        File inputFile = new File(userDataFile);
+        String defaultAdminName = "admin";
+        String defaultAdminPassword = "753admin753";
 
-        if (adminAccount == null){
-            adminAccount = new Admin();
-            System.out.println("The admin was created successfully");
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("\"user_name\":\"" + defaultAdminName + "\"") &&
+                    line.contains("\"user_role\":\"admin\"")) {
+                    System.out.println("This admin already existed");
+                    return;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
         }
-        else{
-            System.out.println("The admin accoutn is available");
-        }
-    }
 
-    public Admin getAdminAccount() {
-        return adminAccount;
-    }
+        
+        UserOperation uo = UserOperation.getInstance();
+        String userId = uo.generateUniqueUserId();
+        String encryptedPassword = uo.encryptPassword(defaultAdminPassword);
+        String registerTime = new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date());
 
-    private void saveAdminToFile(Admin admin){
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/users.txt", true))) {
+        Admin admin = new Admin(userId, defaultAdminName, encryptedPassword, registerTime, "admin");
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(inputFile, true))) {
             writer.write(admin.toString());
             writer.newLine();
+            System.out.println("Create Admin Successfully");
         } catch (IOException e) {
-            System.err.println("Failed to save admin to file: " + e.getMessage());
+            e.printStackTrace();
         }
-    }
+        }
+
 }

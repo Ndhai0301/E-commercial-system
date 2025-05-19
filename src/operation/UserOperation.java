@@ -13,6 +13,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.regex.*;
 
+import data.databaseWork;
+
 public class UserOperation {
 
     private static UserOperation instance;
@@ -69,19 +71,6 @@ public class UserOperation {
     }
 
      public boolean checkUsernameExist(String userName) {
-        // try (BufferedReader br = new BufferedReader(new FileReader(userDataFile))) {
-        //     String line;
-        //     while ((line = br.readLine()) != null) {
-        //         Map<String, String> data = convertLineToJsonMap(line);
-        //         if (data.containsKey("user_name") && data.get("user_name").equals(userName)) {
-        //             return true;
-        //         }
-        //     }
-        // } catch (IOException e) {
-        //     System.err.println("Error reading user file: " + e.getMessage());
-        // }
-        // return false;
-
         try (BufferedReader reader = new BufferedReader(new FileReader(userDataFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -89,9 +78,7 @@ public class UserOperation {
                     return true;
                 }
             }
-        } catch (IOException e) {
-            // File might not exist yet
-        }
+        } catch (IOException e) {}
         return false;
     }
 
@@ -108,18 +95,18 @@ public class UserOperation {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.contains("\"user_name\":\"" + userName + "\"")) {
-                    String encrypted = extractField(line, "user_password");
+                    String encrypted =  databaseWork.extractField(line, "user_password");
                     String decrypted = decryptPassword(encrypted);
                     if (userPassword.equals(decrypted)) {
-                        String userId = extractField(line, "user_id");
-                        String regTime = extractField(line, "user_register_time");
-                        String role = extractField(line, "user_role");
+                        String userId = databaseWork.extractField(line, "user_id");
+                        String regTime = databaseWork.extractField(line, "user_register_time");
+                        String role = databaseWork.extractField(line, "user_role");
 
                         if (role.equals("admin")) {
                             return new Admin(userId, userName, encrypted, regTime, role);
                         } else {
-                            String email = extractField(line, "user_email");
-                            String mobile = extractField(line, "user_mobile");
+                            String email = databaseWork.extractField(line, "user_email");
+                            String mobile = databaseWork.extractField(line, "user_mobile");
                             return new Customer(userId, userName, encrypted, regTime, role, email, mobile);
                         }
                     }
@@ -131,30 +118,5 @@ public class UserOperation {
         return null;
     }
 
-    //WILL BE DELETE IF NOT NECCESSARY
-    public Map<String, String> convertLineToJsonMap(String line) {
-        Map<String, String> resultMap = new HashMap<>();
-
-        // Tách theo dấu phẩy, mỗi cặp là "key":"value"
-        String[] pairs = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"); // Tách đúng cả khi giá trị có dấu phẩy
-
-        for (String pair : pairs) {
-            String[] keyValue = pair.split(":(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", 2); // Chỉ tách lần đầu tiên
-
-            if (keyValue.length == 2) {
-                String key = keyValue[0].trim().replace("\"", "");
-                String value = keyValue[1].trim().replace("\"", "");
-                resultMap.put(key, value);
-            }
-        }
-
-        return resultMap;
-    }
-
-    private String extractField(String json, String field) {
-        String pattern = "\"" + field + "\":\"";
-        int start = json.indexOf(pattern) + pattern.length();
-        int end = json.indexOf("\"", start);
-        return (start > pattern.length() - 1 && end > start) ? json.substring(start, end) : "";
-    }
+   
 }
