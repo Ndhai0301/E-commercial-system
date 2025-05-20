@@ -13,15 +13,14 @@ import java.util.List;
 import java.util.Random;
 
 import data.databaseWork;
-import model.Customer;
 import model.Order;
-import util.CustomerListResult;
+import model.Product;
 import util.OrderListResult;
 
 public class OrderOperation {
     private static OrderOperation instance;
 
-    private static String orderFilePath = "data/orders.txt";
+    private static String orderFilePath = "src/data/orders.txt";
 
     private OrderOperation(){}
 
@@ -90,11 +89,11 @@ public class OrderOperation {
         List<Order> matchedOrders = new ArrayList<>();
         int pageSize = 10;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader("data/orders.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/data/orders.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String userId = databaseWork.extractField(line, "user_id");
-                if (userId.equals(customerId)) {
+                if (userId.contains(customerId)) {
                     matchedOrders.add(parseOrderFromLine(line));
                 }
             }
@@ -132,8 +131,66 @@ public class OrderOperation {
     *Order times should be scattered across different months of the year.
     */
     public void generateTestOrderData() {
-        // Implementation
+        CustomerOperation customerOp = CustomerOperation.getInstance();
+        ProductOperation productOp = ProductOperation.getInstance();
+        UserOperation userOp = UserOperation.getInstance();
+
+        List<Product> allProducts = productOp.getProductListByKeyword("");
+        if (allProducts.isEmpty()) {
+            System.out.println("No products available to create orders.");
+            return;
+        }
+
+        Random rand = new Random();
+
+        for (int i = 1; i <= 10; i++) {
+            // 1. Tạo username, email, phone ngẫu nhiên
+            String username = "tester" + i;
+            String password = "Pass" + i + "123";
+            String email = "testuser" + i + "@example.com";
+            String mobile = "04" + (10000000 + rand.nextInt(89999999));
+
+            boolean registered = customerOp.registerCustomer(username, password, email, mobile);
+
+            if (!registered) {
+                System.out.println("Failed to create customer: " + username);
+                continue;
+            }
+
+            int numOrders = 50 + rand.nextInt(151);
+            for (int j = 0; j < numOrders; j++) {
+                String orderId = generateUniqueOrderId();
+
+                
+                Product product = allProducts.get(rand.nextInt(allProducts.size()));
+                String proId = product.getProId();
+
+
+                int year = LocalDateTime.now().getYear();
+                int month = 1 + rand.nextInt(12);
+                int day = 1 + rand.nextInt(28); 
+                int hour = rand.nextInt(24);
+                int minute = rand.nextInt(60);
+                int second = rand.nextInt(60);
+                String time = String.format("%02d-%02d-%d_%02d:%02d:%02d", day, month, year, hour, minute, second);
+
+                // Ghi đơn hàng
+                Order order = new Order(orderId, userOp.generateUniqueUserId(), proId, time);
+
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/data/orders.txt", true))) {
+                    writer.write(order.toString());
+                    writer.newLine();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            System.out.println("Created " + numOrders + " orders for " + username);
+        }
+
+        System.out.println("Test data generation complete.");
     }
+
 
     /**
     * Generates a chart showing the consumption (sum of order prices)
@@ -164,7 +221,7 @@ public class OrderOperation {
     * Removes all data in the data/orders.txt file.
     */
     public void deleteAllOrders() {
-        File orderFile = new File("data/orders.txt");
+        File orderFile = new File("src/data/orders.txt");
     
         try {
             if (!orderFile.exists()) {

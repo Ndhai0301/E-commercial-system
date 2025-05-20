@@ -12,7 +12,7 @@ import data.databaseWork;
 
 public class CustomerOperation {
 
-    private static final String userDataFile = "data/users.txt";
+    private static final String userDataFile = "src/data/users.txt";
     private static CustomerOperation instance;
     private static final int PAGE_SIZE = 10;
 
@@ -46,7 +46,7 @@ public class CustomerOperation {
         String encryptedPassword = uo.encryptPassword(userPassword);
         // String decryptedPassword = uo.decryptPassword(encryptedPassword);
         
-        Customer customer = new Customer(uo.generateUniqueUserId(),userName, encryptedPassword, registerTime, "Customer", userEmail, userMobile);
+        Customer customer = new Customer(uo.generateUniqueUserId(),userName, encryptedPassword, registerTime, "customer", userEmail, userMobile);
         
         return databaseWork.addOneLine(customer.toString(), userDataFile);
     }
@@ -89,12 +89,12 @@ public class CustomerOperation {
                 break;
 
             default:
-                System.out.println("Không thể cập nhật trường: " + attributeName);
+                System.out.println("unable to update: " + attributeName);
                 return false;
         }
 
         // Ghi lại toàn bộ dữ liệu vào file users.txt
-        File inputFile = new File("data/users.txt");
+        File inputFile = new File("src/data/users.txt");
         List<String> updatedLines = new ArrayList<>();
         boolean updated = false;
 
@@ -130,7 +130,7 @@ public class CustomerOperation {
     }
 
     public boolean deleteCustomer(String customerId) {
-        File inputFile = new File("data/users.txt");
+        File inputFile = new File("src/data/users.txt");
 
         List<String> remainingLines = new ArrayList<>();
         boolean deleted = false;
@@ -172,13 +172,12 @@ public class CustomerOperation {
         List<Customer> allCustomers = new ArrayList<>();
         int customersPerPage = 10;
 
-        File inputFile = new File("data/users.txt");
+        File inputFile = new File("src/data/users.txt");
 
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (line.contains("\"user_role\":\"customer\"")) {
-                    // Tách thông tin từ dòng JSON-like
                     Customer customer = parseCustomerFromLine(line);
                     if (customer != null) {
                         allCustomers.add(customer);
@@ -238,7 +237,7 @@ public class CustomerOperation {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Lỗi khi đọc file: " + e.getMessage());
+            System.out.println("ERRROR READING FILE: " + e.getMessage());
             return;
         }
 
@@ -249,7 +248,7 @@ public class CustomerOperation {
                 writer.newLine();
             }
         } catch (IOException e) {
-            System.out.println("Lỗi khi ghi file: " + e.getMessage());
+            System.out.println("ERROR WRITING FILE: " + e.getMessage());
         }
     }
 

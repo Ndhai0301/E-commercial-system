@@ -3,14 +3,14 @@ package operation;
 import java.io.*;
 
 import java.util.*;
-//import javafx.*;
+// import javafx.*;
 import data.databaseWork;
 import model.Product;
 import util.ProductListResult;
 
 public class ProductOperation {
     private static ProductOperation instance;
-    private static final String productDataFile = "data/products.txt";
+    private static final String productDataFile = "src/data/products.txt";
     
 
     private ProductOperation(){}
@@ -27,8 +27,8 @@ public class ProductOperation {
      * The data is saved into the data/products.txt file.
      */
     public void extractProductsFromFiles(){
-        String inputFile = "data/raw_products.txt";  // file gốc chứa sản phẩm
-        String outputFile = "data/products.txt";
+        String inputFile = "src/data/raw_products.txt";  // file gốc chứa sản phẩm
+        String outputFile = "src/data/products.txt";
 
        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
             String line;
@@ -46,25 +46,63 @@ public class ProductOperation {
      * @param pageNumber The page number to retrieve
      * @return A list of Product objects, current page number, and total pages
      */
+    // public ProductListResult getProductList(int pageNumber) {
+    //     int page_size = 10;
+    //     List <Product> listProducts = new ArrayList<>();
+    //     File inputFile = new File("src/data/products.txt");
+
+    //     try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))){
+    //         String line;
+    //         while ((line = reader.readLine())!=null){
+    //             Product product = parseProductFromLine(line);
+    //             if (product  != null){
+    //                 listProducts.add(product);
+    //             }
+    //         }
+    //     } catch (Exception e) {
+    //         // TODO: handle exception
+    //     }
+
+    //     int totalProducts = listProducts.size();
+    //     int totalPages = (int) Math.ceil(totalProducts / 10.0);
+
+    //     if (pageNumber < 1) pageNumber = 1;
+    //     if (pageNumber > totalPages) pageNumber = totalPages;
+
+    //     int startIndex = (pageNumber - 1) * page_size;
+    //     int endIndex = Math.min(startIndex + page_size, totalProducts);
+
+    //     List<Product> productsOnPage = new ArrayList<>();
+    //     if (startIndex < totalProducts) {
+    //         productsOnPage = listProducts.subList(startIndex, endIndex);
+    //     }
+
+    //     return new ProductListResult(productsOnPage, pageNumber, totalPages);
+    // }
+
     public ProductListResult getProductList(int pageNumber) {
         int page_size = 10;
-        List <Product> listProducts = new ArrayList<>();
-        File inputFile = new File("data/products.txt");
+        List<Product> listProducts = new ArrayList<>();
+        File inputFile = new File("src/data/products.txt");
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))){
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
             String line;
-            while ((line = reader.readLine())!=null){
+            while ((line = reader.readLine()) != null) {
                 Product product = parseProductFromLine(line);
-                if (product  != null){
+                if (product != null) {
                     listProducts.add(product);
                 }
             }
         } catch (Exception e) {
-            // TODO: handle exception
+            e.printStackTrace();
         }
 
         int totalProducts = listProducts.size();
         int totalPages = (int) Math.ceil(totalProducts / 10.0);
+
+        if (totalPages == 0) {
+            return new ProductListResult(new ArrayList<>(), 1, 1);
+        }
 
         if (pageNumber < 1) pageNumber = 1;
         if (pageNumber > totalPages) pageNumber = totalPages;
@@ -72,13 +110,11 @@ public class ProductOperation {
         int startIndex = (pageNumber - 1) * page_size;
         int endIndex = Math.min(startIndex + page_size, totalProducts);
 
-        List<Product> productsOnPage = new ArrayList<>();
-        if (startIndex < totalProducts) {
-            productsOnPage = listProducts.subList(startIndex, endIndex);
-        }
+        List<Product> productsOnPage = listProducts.subList(startIndex, endIndex);
 
         return new ProductListResult(productsOnPage, pageNumber, totalPages);
     }
+
 
     private Product parseProductFromLine(String line){
         try{
@@ -176,7 +212,7 @@ public class ProductOperation {
 
     
     public void deleteAllProducts() {
-        File productFile = new File("data/products.txt");
+        File productFile = new File("src/data/products.txt");
     
         try {
             if (!productFile.exists()) {

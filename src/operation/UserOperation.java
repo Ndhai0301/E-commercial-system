@@ -22,7 +22,7 @@ public class UserOperation {
     private static final Map<String, String> userDatabase = new HashMap<>(); // username -> encryptedPassword
     private static final Map<String, User> userObjects = new HashMap<>(); // username -> User object
     private static final Random random = new Random();
-    private static final String userDataFile = "data/users.txt";
+    private static final String userDataFile = "src/data/users.txt";
 
     private UserOperation() {}
 
@@ -83,7 +83,7 @@ public class UserOperation {
     }
 
     public boolean validateUsername(String userName) {
-        return userName.matches("[a-zA-Z_]{5,}");
+        return userName.matches("[a-zA-Z0-9_]{5,}");
     }
 
     public boolean validatePassword(String userPassword) {

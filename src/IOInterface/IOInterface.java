@@ -52,13 +52,11 @@ public class IOInterface {
     public void adminMenu() {
         System.out.println("\n=== Admin Menu ===");
         System.out.println("1. Show products");
-        System.out.println("2. Add customers");
-        System.out.println("3. Show customers");
-        System.out.println("4. Show orders");
-        System.out.println("5. Generate test data");
-        System.out.println("6. Generate all statistical figures");
-        System.out.println("7. Delete all data");
-        System.out.println("8. Logout");
+        System.out.println("2. Show customers");
+        System.out.println("3. Show orders");
+        System.out.println("4. Generate Data");
+        System.out.println("5. Delete all data");
+        System.out.println("6. Logout");
     }
 
     public void customerMenu() {
@@ -67,8 +65,7 @@ public class IOInterface {
         System.out.println("2. Update profile");
         System.out.println("3. Show products (or: 3 keyword)");
         System.out.println("4. Show history orders");
-        System.out.println("5. Generate all consumption figures");
-        System.out.println("6. Logout");
+        System.out.println("5. Logout");
     }
 
     public void showList(String userRole, String listType, List<?> objectList, int pageNumber, int totalPages) {

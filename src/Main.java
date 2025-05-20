@@ -1,11 +1,18 @@
+import java.util.List;
+
 import IOInterface.IOInterface;
 import model.Customer;
+import model.Order;
+import model.Product;
 import model.User;
 import operation.AdminOperation;
 import operation.CustomerOperation;
 import operation.OrderOperation;
 import operation.ProductOperation;
 import operation.UserOperation;
+import util.CustomerListResult;
+import util.OrderListResult;
+import util.ProductListResult;
 
 public class Main {
     public static void main(String[] args) {
@@ -68,37 +75,100 @@ public class Main {
         while (!logout) {
             try {
                 io.adminMenu();
-                String[] adminChoice = io.getUserInput("Enter admin option (1-8):", 1);
+                String[] adminChoice = io.getUserInput("Enter admin option (1-6):", 1);
                 switch (adminChoice[0]) {
                     case "1":
-                        // Call ProductOperation.getInstance().getProductList(...)
                         io.printMessage("Feature: Show products");
+                        int product_page = 1;
+                        boolean back = false;
+                        ProductOperation productOp = ProductOperation.getInstance();
+                        while (!back) {
+                            ProductListResult result = productOp.getProductList(product_page);
+                            io.showList("admin", "order", result.getProductList(), result.getCurrentPage(), result.getTotalPages());
+
+                            String[] nav = io.getUserInput("Type 'n' for next, 'p' for previous, or 'b' to go back:", 1);
+                            switch (nav[0].toLowerCase()) {
+                                case "n":
+                                    if (product_page < result.getTotalPages()) product_page++;
+                                    else io.printMessage("Already at last page.");
+                                    break;
+                                case "p":
+                                    if (product_page > 1) product_page--;
+                                    else io.printMessage("Already at first page.");
+                                    break;
+                                case "b":
+                                    back = true;
+                                    break;
+                                default:
+                                    io.printErrorMessage("Navigation", "Invalid input.");
+                            }
+                        }
                         break;
                     case "2":
-                        // Register customer manually
-                        io.printMessage("Feature: Add customers");
+                        io.printMessage("Feature: Show customers");
+                        int customer_page = 1;
+                        boolean cBack = false;
+                        CustomerOperation customerOp = CustomerOperation.getInstance();
+                        while (!cBack) {
+                            CustomerListResult result = customerOp.getCustomerList(customer_page);
+                            io.showList("customer", "customer", result.getCustomers(), result.getCurrentPage(), result.getTotalPages());
+
+                            String[] nav = io.getUserInput("Type 'n' for next, 'p' for previous, or 'b' to go back:", 1);
+                            switch (nav[0].toLowerCase()) {
+                                case "n":
+                                    if (customer_page < result.getTotalPages()) customer_page++;
+                                    else io.printMessage("Already at last page.");
+                                    break;
+                                case "p":
+                                    if (customer_page > 1) customer_page--;
+                                    else io.printMessage("Already at first page.");
+                                    break;
+                                case "b":
+                                    cBack = true;
+                                    break;
+                                default:
+                                    io.printErrorMessage("Navigation", "Invalid input.");
+                            }
+                        }
                         break;
                     case "3":
-                        io.printMessage("Feature: Show customers");
+                        io.printMessage("Feature: Show orders");
+                        int order_page = 1;
+                        boolean oBack = false;
+                        OrderOperation orderOp = OrderOperation.getInstance();
+                        while (!oBack) {
+                            OrderListResult result = orderOp.getOrderList("",order_page);
+                            io.showList("admin", "orders", result.getOrders(), result.getCurrentPage(), result.getTotalPages());
+
+                            String[] nav = io.getUserInput("Type 'n' for next, 'p' for previous, or 'b' to go back:", 1);
+                            switch (nav[0].toLowerCase()) {
+                                case "n":
+                                    if (order_page < result.getTotalPages()) order_page++;
+                                    else io.printMessage("Already at last page.");
+                                    break;
+                                case "p":
+                                    if (order_page > 1) order_page--;
+                                    else io.printMessage("Already at first page.");
+                                    break;
+                                case "b":
+                                    oBack = true;
+                                    break;
+                                default:
+                                    io.printErrorMessage("Navigation", "Invalid input.");
+                            }
+                        }
                         break;
                     case "4":
-                        io.printMessage("Feature: Show orders");
-                        break;
-                    case "5":
                         io.printMessage("Generating test data...");
                         OrderOperation.getInstance().generateTestOrderData();
                         break;
-                    case "6":
-                        io.printMessage("Generating all statistical figures...");
-                        // Call statistical generation methods
-                        break;
-                    case "7":
+                    case "5":
                         io.printMessage("Deleting all data...");
                         ProductOperation.getInstance().deleteAllProducts();
                         CustomerOperation.getInstance().deleteAllCustomers();
                         OrderOperation.getInstance().deleteAllOrders();
                         break;
-                    case "8":
+                    case "6":
                         io.printMessage("Logging out...");
                         logout = true;
                         break;
@@ -133,16 +203,30 @@ public class Main {
                         }
                         break;
                     case "3":
-                        io.printMessage("Feature: Show products");
+                        io.printMessage("Feature: Show product");
+                        List<Product> productList = ProductOperation.getInstance().getProductListByKeyword("");
+                        if (productList.isEmpty()) {
+                            io.printMessage("No products available.");
+                        } else {
+                            for (Product product : productList) {
+                                io.printObject(product);
+                            }
+                        }
                         break;
                     case "4":
                         io.printMessage("Feature: Show history orders");
+                        OrderOperation orderOp = OrderOperation.getInstance();
+                        OrderListResult result = orderOp.getOrderList(customer.getUserId(), 1); // page 1
+
+                        if (result.getOrders().isEmpty()) {
+                            io.printMessage("You have no orders yet.");
+                        } else {
+                            for (Order order : result.getOrders()) {
+                                io.printObject(order);
+                            }
+                        }
                         break;
                     case "5":
-                        io.printMessage("Generating your consumption figures...");
-                        OrderOperation.getInstance().generateSingleCustomerConsumptionFigure(customer.getUserId());
-                        break;
-                    case "6":
                         io.printMessage("Logging out...");
                         logout = true;
                         break;

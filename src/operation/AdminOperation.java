@@ -11,7 +11,6 @@ import java.util.Date;
 import model.Admin;
 
 public class AdminOperation {
-    private static final String userDataFile = "data/users.txt";
     private static AdminOperation instance;
     
 
@@ -25,7 +24,7 @@ public class AdminOperation {
     }
 
     public void registerAdmin() {
-        File inputFile = new File(userDataFile);
+        File inputFile = new File("src/data/users.txt");
         String defaultAdminName = "admin";
         String defaultAdminPassword = "753admin753";
 
