@@ -39,7 +39,6 @@ public class CustomerOperation {
         if (!uo.validateUsername(userName) || !uo.validatePassword(userPassword)
                 || !validateEmail(userEmail) || !validateMobile(userMobile)
                 || uo.checkUsernameExist(userName)) {
-            System.out.println("Error");
             return false;
         }
         String registerTime = new SimpleDateFormat("dd-MM-yyyy_HH:mm:ss").format(new Date());
@@ -57,7 +56,6 @@ public class CustomerOperation {
         switch (attributeName.toLowerCase()) {
             case "user_name":
                 if (!userOp.validateUsername(value)) {
-                    System.out.println("Tên không hợp lệ.");
                     return false;
                 }
                 customerObject.setUserName(value);
@@ -65,7 +63,6 @@ public class CustomerOperation {
 
             case "user_email":
                 if (!validateEmail(value)) {
-                    System.out.println("Email không hợp lệ.");
                     return false;
                 }
                 customerObject.setUserEmail(value);
@@ -73,7 +70,6 @@ public class CustomerOperation {
 
             case "user_mobile":
                 if (!validateMobile(value)) {
-                    System.out.println("Số điện thoại không hợp lệ.");
                     return false;
                 }
                 customerObject.setUserMobile(value);
@@ -81,7 +77,6 @@ public class CustomerOperation {
 
             case "user_password":
                 if (!userOp.validatePassword(value)) {
-                    System.out.println("Mật khẩu không hợp lệ.");
                     return false;
                 }
                 String encryptedPassword = userOp.encryptPassword(value);
@@ -89,11 +84,9 @@ public class CustomerOperation {
                 break;
 
             default:
-                System.out.println("unable to update: " + attributeName);
                 return false;
         }
 
-        // Ghi lại toàn bộ dữ liệu vào file users.txt
         File inputFile = new File("src/data/users.txt");
         List<String> updatedLines = new ArrayList<>();
         boolean updated = false;
@@ -237,7 +230,6 @@ public class CustomerOperation {
                 }
             }
         } catch (IOException e) {
-            System.out.println("ERRROR READING FILE: " + e.getMessage());
             return;
         }
 

@@ -1,12 +1,7 @@
 package data;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
-
-import model.Customer;
-
 public class databaseWork {
     
     
@@ -24,21 +19,20 @@ public class databaseWork {
     public static String extractField(String text, String key) {
         String pattern = "\"" + key + "\":";
         int start = text.indexOf(pattern);
-        if (start == -1) return ""; // key không tồn tại
+        if (start == -1) return ""; 
 
         start += pattern.length();
-        // Bỏ khoảng trắng nếu có
+
         while (start < text.length() && Character.isWhitespace(text.charAt(start))) {
             start++;
         }
 
-        // Nếu là chuỗi
         if (text.charAt(start) == '"') {
-            start++; // bỏ dấu "
+            start++;
             int end = text.indexOf("\"", start);
             return (end > start) ? text.substring(start, end) : "";
         } else {
-            // Nếu là số, boolean, null → đọc tới dấu ',' hoặc '}'
+
             int end = text.indexOf(",", start);
             if (end == -1) end = text.indexOf("}", start);
             return (end > start) ? text.substring(start, end).trim() : "";

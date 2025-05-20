@@ -19,8 +19,8 @@ public class UserOperation {
 
     private static UserOperation instance;
     private static final Set<String> registeredUsernames = new HashSet<>();
-    private static final Map<String, String> userDatabase = new HashMap<>(); // username -> encryptedPassword
-    private static final Map<String, User> userObjects = new HashMap<>(); // username -> User object
+    private static final Map<String, String> userDatabase = new HashMap<>(); 
+    private static final Map<String, User> userObjects = new HashMap<>();
     private static final Random random = new Random();
     private static final String userDataFile = "src/data/users.txt";
 
@@ -113,7 +113,6 @@ public class UserOperation {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Login error: " + e.getMessage());
         }
         return null;
     }

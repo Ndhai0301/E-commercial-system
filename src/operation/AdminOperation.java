@@ -33,7 +33,6 @@ public class AdminOperation {
             while ((line = reader.readLine()) != null) {
                 if (line.contains("\"user_name\":\"" + defaultAdminName + "\"") &&
                     line.contains("\"user_role\":\"admin\"")) {
-                    System.out.println("This admin already existed");
                     return;
                 }
             }
@@ -53,7 +52,6 @@ public class AdminOperation {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(inputFile, true))) {
             writer.write(admin.toString());
             writer.newLine();
-            System.out.println("Create Admin Successfully");
         } catch (IOException e) {
             e.printStackTrace();
         }

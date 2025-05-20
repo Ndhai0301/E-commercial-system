@@ -1,9 +1,10 @@
 package operation;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.category.DefaultCategoryDataset;
 
 import java.io.*;
-
 import java.util.*;
-// import javafx.*;
 import data.databaseWork;
 import model.Product;
 import util.ProductListResult;
@@ -46,40 +47,6 @@ public class ProductOperation {
      * @param pageNumber The page number to retrieve
      * @return A list of Product objects, current page number, and total pages
      */
-    // public ProductListResult getProductList(int pageNumber) {
-    //     int page_size = 10;
-    //     List <Product> listProducts = new ArrayList<>();
-    //     File inputFile = new File("src/data/products.txt");
-
-    //     try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))){
-    //         String line;
-    //         while ((line = reader.readLine())!=null){
-    //             Product product = parseProductFromLine(line);
-    //             if (product  != null){
-    //                 listProducts.add(product);
-    //             }
-    //         }
-    //     } catch (Exception e) {
-    //         // TODO: handle exception
-    //     }
-
-    //     int totalProducts = listProducts.size();
-    //     int totalPages = (int) Math.ceil(totalProducts / 10.0);
-
-    //     if (pageNumber < 1) pageNumber = 1;
-    //     if (pageNumber > totalPages) pageNumber = totalPages;
-
-    //     int startIndex = (pageNumber - 1) * page_size;
-    //     int endIndex = Math.min(startIndex + page_size, totalProducts);
-
-    //     List<Product> productsOnPage = new ArrayList<>();
-    //     if (startIndex < totalProducts) {
-    //         productsOnPage = listProducts.subList(startIndex, endIndex);
-    //     }
-
-    //     return new ProductListResult(productsOnPage, pageNumber, totalPages);
-    // }
-
     public ProductListResult getProductList(int pageNumber) {
         int page_size = 10;
         List<Product> listProducts = new ArrayList<>();
@@ -173,7 +140,7 @@ public class ProductOperation {
      * @return A Product object or null if not found
      */    
     public Product getProductById(String productId) {
-        try (BufferedReader reader = new BufferedReader(new FileReader("data/products.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/data/products.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String id = databaseWork.extractField(line, "pro_id");

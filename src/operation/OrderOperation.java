@@ -137,14 +137,12 @@ public class OrderOperation {
 
         List<Product> allProducts = productOp.getProductListByKeyword("");
         if (allProducts.isEmpty()) {
-            System.out.println("No products available to create orders.");
             return;
         }
 
         Random rand = new Random();
 
         for (int i = 1; i <= 10; i++) {
-            // 1. Tạo username, email, phone ngẫu nhiên
             String username = "tester" + i;
             String password = "Pass" + i + "123";
             String email = "testuser" + i + "@example.com";
@@ -153,7 +151,6 @@ public class OrderOperation {
             boolean registered = customerOp.registerCustomer(username, password, email, mobile);
 
             if (!registered) {
-                System.out.println("Failed to create customer: " + username);
                 continue;
             }
 
@@ -174,7 +171,6 @@ public class OrderOperation {
                 int second = rand.nextInt(60);
                 String time = String.format("%02d-%02d-%d_%02d:%02d:%02d", day, month, year, hour, minute, second);
 
-                // Ghi đơn hàng
                 Order order = new Order(orderId, userOp.generateUniqueUserId(), proId, time);
 
                 try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/data/orders.txt", true))) {
@@ -184,11 +180,7 @@ public class OrderOperation {
                     e.printStackTrace();
                 }
             }
-
-            System.out.println("Created " + numOrders + " orders for " + username);
         }
-
-        System.out.println("Test data generation complete.");
     }
 
 
@@ -225,7 +217,6 @@ public class OrderOperation {
     
         try {
             if (!orderFile.exists()) {
-                System.out.println("File products does not exist");
                 return;
             }           
             
@@ -233,9 +224,7 @@ public class OrderOperation {
             writer.write(""); 
             writer.close();
             
-            System.out.println("    deleted successfully.");
         } catch (IOException e) {
-            System.err.println("Error deleting products: " + e.getMessage());
             e.printStackTrace();
         }
     }
